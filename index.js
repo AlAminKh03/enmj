@@ -1,5 +1,25 @@
-const fs= require('node:fs')
+// core built in module 
 const http= require('node:http')
+
+// relative path 
+const routes =require('./Routes/admin')
+const greet= require("./Routes/shop")
+
+// 3rd party module 
+const express= require('express')
+const bodyParser=require("body-parser")
+const app = express()
+
+// middleware 
+app.use(bodyParser.urlencoded({extended:false}),)
+
+app.use(routes)
+app.use(greet)
+
+
+
+app.listen(8000)
+
 
 // const readingInput = fs.readFileSync('./txt/input.txt','utf-8')
 // console.log(readingInput);
@@ -37,44 +57,3 @@ const http= require('node:http')
     
     
 // })
-
-const server = http.createServer((req,res)=>{
-    const url= req.url;
-    const method= req.method;
-    if (url==='/'){
-        res.write('<html>')
-        res.write('<head><title>My first server for form</title></head>')
-        res.write("<body><form action='/message' method='POST'><input type='text' name='message'></input ><button type='submit'>submit</button></form></body>")
-        res.write('</html>')
-        return res.end()
-    }
-    else if (url==="/message" && method==="POST"){
-        const body=[]
-        req.on('data',(chunk)=>{
-            body.push(chunk)
-        })
-        return req.on('end', ()=>{
-            // console.log(Buffer);
-            const parsedBody=Buffer.concat(body).toString()
-            // console.log(parsedBody);
-            const message = parsedBody.split('=')[1];
-            fs.writeFile("message.txt", message,(err)=>{
-                res.statusCode=302;
-                res.setHeader('location','/')
-                return res.end()
-            })
-            
-        })
-    }
-    res.setHeader('Content-type','text/html')
-    res.write("<html>")
-    res.write('<head><title> Main page for my server</title></head>')
-    res.write('<body><h1>Hello from Main page of my server</h1></body>')
-    res.write("</html>")
-    return res.end()
-
-  
-    
-})
-
-server.listen(8000)
