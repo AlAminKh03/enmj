@@ -1,9 +1,11 @@
 // core built in module 
 const http= require('node:http')
+const path = require("path")
+
 
 // relative path 
-const routes =require('./Routes/admin')
-const greet= require("./Routes/shop")
+const adminRoutes =require('./Routes/admin')
+const shopRoutes= require("./Routes/shop")
 
 // 3rd party module 
 const express= require('express')
@@ -11,12 +13,15 @@ const bodyParser=require("body-parser")
 const app = express()
 
 // middleware 
-app.use(bodyParser.urlencoded({extended:false}),)
+app.use(bodyParser.urlencoded({extended:false}))
+app.use(express.static(path.join(__dirname,'public')))
+app.set('view engine', 'pug')
+app.set('views', 'views')
 
-app.use(routes)
-app.use(greet)
+app.use('/admin',adminRoutes.router)
+app.use(shopRoutes)
 app.use((req,res,next)=>{
-    res.status(404).send("<h1>Sorry the page was not found</h1>")
+    res.status(404).render('404')
 })
 
 
