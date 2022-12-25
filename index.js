@@ -6,6 +6,7 @@ const path = require("path")
 // relative path 
 const adminRoutes =require('./Routes/admin')
 const shopRoutes= require("./Routes/shop")
+const notFound= require("./contollers/404")
 
 // 3rd party module 
 const express= require('express')
@@ -15,14 +16,13 @@ const app = express()
 // middleware 
 app.use(bodyParser.urlencoded({extended:false}))
 app.use(express.static(path.join(__dirname,'public')))
-app.set('view engine', 'pug')
+
+app.set('view engine', 'ejs')
 app.set('views', 'views')
 
-app.use('/admin',adminRoutes.router)
+app.use('/admin',adminRoutes)
 app.use(shopRoutes)
-app.use((req,res,next)=>{
-    res.status(404).render('404')
-})
+app.use(notFound.notFound)
 
 
 

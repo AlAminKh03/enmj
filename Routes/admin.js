@@ -1,23 +1,13 @@
-const path=require('path')
 
 const express= require('express');
 const Router = express.Router()
 
-const rootDir= require('../utils/path')
-
-const product=[]
+const productController= require('../contollers/products')
 
 // these 2 routes now explicitly set to /admin/add-products =>GET
-Router.get('/add-product',(req,res,next)=>{
-    console.log('This is product route')
-    res.render('add-product',{path:"/admin/add-product"})
-})
+Router.get('/add-product',productController.getAddProduct)
 
 // /admin/add-products =>POST 
-Router.post('/add-product',(req,res,next)=>{
-product.push({title:req.body.title })
-    res.redirect('/')
-})
+Router.post('/add-product',productController.postAddProduct)
 
-exports.router=Router;
-exports.product=product
+module.exports=Router;
