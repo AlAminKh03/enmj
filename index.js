@@ -22,6 +22,7 @@ app.set('views', 'views')
 
 app.use('/admin',adminRoutes)
 app.use(shopRoutes)
+
 app.use(notFound.notFound)
 
 

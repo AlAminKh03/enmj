@@ -1,0 +1,37 @@
+<%- include('../includes/head.ejs') %>
+</head>
+
+<body>
+    <%- include('../includes/navigation.ejs') %>
+<% if (prods.length > 0) { %>
+    <main>
+       
+        <h1>My Products</h1>
+        <p>List of all the products...</p>
+        <% for (product of prods) { %>
+        <div class="grid">
+            <article class="card product-item">
+                <header class="card__header">
+                    <h1 class="product__title"><%=product.title%></h1>
+                </header>
+                <div class="card__image">
+                    <img src="<%=product.ImgUrl%>" alt="A Book">
+                </div>
+                <div class="card__content">
+                    <h2 class="product__price">$<%=product.price%></h2>
+                    <p class="product__description"><%=product.description%></p>
+                </div>
+                <div class="card__actions">
+                    <a class="btn" href="/product/<%= product.id %>">Details</a>
+                    <form action="add-to-cart" method="POST">
+                        <button class="btn">Add to Cart</button>
+                    </form>
+                </div>
+            </article>
+        </div>
+    </main>
+    <% } %>
+    <% } else { %>
+        <h1> No products available</h1>
+        <% } %>
+        <%- include('../includes/end.ejs') %>

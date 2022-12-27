@@ -6,7 +6,12 @@ const adminRoutes=require('./admin')
 const express = require('express');
 const Router = express.Router();
 
-const productController= require("../contollers/products")
+const shopController= require("../contollers/shop")
 
-Router.get('/',productController.shopProduct)
+Router.get('/',shopController.shopIndex)
+Router.get('/product-list',shopController.shopProductList)
+Router.get('/cart',shopController.shopCart)
+Router.get('/order',shopController.shopOrder)
+Router.get('/product/:productId',shopController.getProduct)
+Router.get('/product-detils',shopController.shopProductDetails)
 module.exports=Router;
