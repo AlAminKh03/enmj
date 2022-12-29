@@ -1,4 +1,5 @@
 const productModel =require("../models/product")
+const cartModel=require("../models/cart")
 
 exports.shopIndex=(req,res,next)=>{
     productModel.fetchData(product=>{
@@ -40,7 +41,13 @@ exports.getProduct=(req,res,next)=>{
         path:'/products'
     })
  })
-   
+}
+exports.postProduct=(req,res,next)=>{
+    const prodId= req.body.productId;
+    productModel.findById(prodId,product=>{
+    cartModel.addProduct(prodId,product.price)
+    })
+    res.redirect('/cart')
 }
 exports.shopOrder=(req,res,next)=>{
     res.render('shop/order',{
