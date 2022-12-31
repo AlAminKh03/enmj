@@ -8,9 +8,7 @@ module.exports= class Cart{
     static addProduct(id,productPrice){
         fs.readFile(p, (err, fileContent) => {
             let cart = { products: [], totalPrice: 0 };
-            console.log({err});
-            console.log(fileContent);
-            if(cart.products.length > 0){
+            if(!err){
                 cart = JSON.parse(fileContent);
             }
             // checking if same id is already here 
@@ -20,8 +18,6 @@ module.exports= class Cart{
             // adding product or increasing quantity 
                   let updatedProduct;
             // increasing quantity 
-                
-               if (cart.products.length){ 
                 if(existingProduct){
                     updatedProduct={...existingProduct};
                     updatedProduct.qty= updatedProduct.qty + 1;
@@ -34,16 +30,9 @@ module.exports= class Cart{
                     cart.products=[...cart.products, updatedProduct]
                 }
                   cart.totalPrice= cart.totalPrice+ +productPrice;
-                }
                   fs.writeFile(p,JSON.stringify(cart),(err)=>{
                       console.log("loggin from error");
-                  })
-                }
-              
-
-              
-       )
-    }
+                  })})}
 
     static deleteProduct(id, productPrice){
         fs.readFile(p,(err,fileContent)=>{
@@ -65,4 +54,35 @@ module.exports= class Cart{
             }
         })
     }
+
+static getCartData(cb){
+    fs.readFile(p,(err, fileContent)=>{
+        if(err){
+            cb([])
+        }
+        else{
+            cb(JSON.parse(fileContent))
+        }
+    })}
+
+    static deleteCartItem(id,productPrice){
+    fs.readFile(p,(err,fileContent)=>{
+    if(err){
+        return ;
+    }
+    else{
+        const cartData= JSON.parse(fileContent);
+        const desiredProductIndex = cartData.products.findIndex(product=>product.id === id)
+        const desiredProduct = cartData.products.find(product=>product.id === id)
+        const desiredProductQty= desiredProduct.qty;
+        const updatedCart = {...cartData};
+        updatedCart.products.splice(desiredProductIndex,1)
+        updatedCart.totalPrice= updatedCart.totalPrice - (desiredProductQty* productPrice)
+
+        fs.writeFile(p,JSON.stringify(updatedCart),(err)=>{
+            console.log(err);
+        })
+        
+    }})}
+    
 }

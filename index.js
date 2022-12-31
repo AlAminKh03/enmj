@@ -7,6 +7,7 @@ const path = require("path")
 const adminRoutes =require('./Routes/admin')
 const shopRoutes= require("./Routes/shop")
 const notFound= require("./contollers/404")
+const mongoConnect = require("./utils/database")
 
 // 3rd party module 
 const express= require('express')
@@ -27,7 +28,11 @@ app.use(notFound.notFound)
 
 
 
-app.listen(8000)
+mongoConnect(client=>{
+    console.log(client);
+    app.listen(8000)
+
+})
 
 
 // const readingInput = fs.readFileSync('./txt/input.txt','utf-8')
