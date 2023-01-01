@@ -7,34 +7,56 @@ exports.getAddProduct= (req,res,next)=>{
         editMode:false
         })
 }
-exports.getProducts= (req,res,next)=>{
-    productModel.fetchData(product=>{
-        res.render("admin/products",{
-            prods:product,
-            path:'/admin/products', 
-            title: "products"
-        })
+exports.postAddProduct=(req,res,next)=>{
+    const title= req.body.title;    
+    const ImgUrl=req.body.ImgUrl;    
+    const price=req.body.price;    
+    const description=req.body.description;    
+
+    const product = new productModel(title,ImgUrl,price,description)
+    product.save()
+    .then(result=>{
+        console.log('created product');
+        res.redirect('/')
     })
+    .catch(err=>{
+        console.log(err);
+    })
+        
+    }
+exports.getProducts= (req,res,next)=>{
+    productModel.fetchData()
+    .then(products=>{
+            res.render("admin/products",{
+                prods:products,
+                path:'/admin/products', 
+                title: "products"
+            }
+    )})
+    .catch(err=>{
+        console.log(err);
+    })
+
 }
 
-exports.getEditProduct= (req,res,next)=>{
-    const editMode=req.query.edit;
-    if(!editMode){
-        return res.redirect('/')
-    }
-    const prodId= req.params.productId;
-    productModel.findById(prodId, product=>{
-    if(!product){
-        return res.redirect('/')
-    }
-    res.render('admin/edit-product',{
-        product:product,
-        path:"/admin/edit-product",
-        title: "add-product",
-        editMode:editMode
-        })
-    })  
-}
+// exports.getEditProduct= (req,res,next)=>{
+//     const editMode=req.query.edit;
+//     if(!editMode){
+//         return res.redirect('/')
+//     }
+//     const prodId= req.params.productId;
+//     productModel.findById(prodId, product=>{
+//     if(!product){
+//         return res.redirect('/')
+//     }
+//     res.render('admin/edit-product',{
+//         product:product,
+//         path:"/admin/edit-product",
+//         title: "add-product",
+//         editMode:editMode
+//         })
+//     })  
+// }
 exports.postEditProduct=(req,res,next)=>{
     const prodId=req.body.productId;
     const updatedTitle = req.body.title;
@@ -54,13 +76,3 @@ productModel.deleteData(prodId)
 res.redirect('/admin/products')
 }
 
-exports.postAddProduct=(req,res,next)=>{
-    const title= req.body.title;    
-    const ImgUrl=req.body.ImgUrl;    
-    const price=req.body.price;    
-    const description=req.body.description;    
-
-    const product = new productModel(null,title,ImgUrl,price,description)
-    product.save()
-        res.redirect('/')
-    }

@@ -2,22 +2,30 @@ const productModel =require("../models/product")
 const cartModel=require("../models/cart")
 
 exports.shopIndex=(req,res,next)=>{
-    productModel.fetchData(product=>{
-        res.render("shop/index",{
-            prods:product,
-            path:'/', 
-            title: "shop"
-        })
+    productModel.fetchData()
+    .then(products=>{
+            res.render("shop/index",{
+                prods:products,
+                path:'/', 
+                title: "shop"
+            })
+    })
+    .catch(err=>{
+        console.log(err);
     })
 }
 exports.shopProductList=(req,res,next)=>{
-    productModel.fetchData(product=>{
+    productModel.fetchData()
+    .then(products=>{
         res.render("shop/product-list",{
-            prods:product,
+            prods:products,
             path:'/product-list', 
             title: "product-list"
         })
-    })
+})
+.catch(err=>{
+    console.log(err);
+})
 }
 
 exports.shopCart=(req,res,next)=>{
@@ -48,7 +56,9 @@ exports.shopProductDetails=(req,res,next)=>{
 }
 exports.getProduct=(req,res,next)=>{
    const prodId= req.params.productId;
- productModel.findById(prodId,product=>{
+   console.log(prodId);
+ productModel.findById(prodId)
+ .then(product=>{
     res.render('shop/product-details',{
         product:product,
         title:product.title,

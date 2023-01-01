@@ -7,7 +7,7 @@ const path = require("path")
 const adminRoutes =require('./Routes/admin')
 const shopRoutes= require("./Routes/shop")
 const notFound= require("./contollers/404")
-const mongoConnect = require("./utils/database")
+const database = require("./utils/database")
 
 // 3rd party module 
 const express= require('express')
@@ -28,10 +28,8 @@ app.use(notFound.notFound)
 
 
 
-mongoConnect(client=>{
-    console.log(client);
+database.mongoConnect(()=>{
     app.listen(8000)
-
 })
 
 

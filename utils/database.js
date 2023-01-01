@@ -23,5 +23,5 @@ const getDb =()=>{
     throw "No database connected"
 }
 
-module.mongoConnect=mongoConnect;
-module.getDb=getDb;
+exports.mongoConnect=mongoConnect;
+exports.getDb=getDb;

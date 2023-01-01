@@ -1,21 +1,21 @@
+const mongodb=require('mongodb')
+const path = require('path')
+const fs= require('node:fs')
+const cartModel = require('./cart')
 
-// const path = require('path')
-// const fs= require('node:fs')
-// const cartModel = require('./cart')
+const p= path.join(path.dirname(process.mainModule.filename),
+ 'data',
+ 'products.json')
 
-// const p= path.join(path.dirname(process.mainModule.filename),
-//  'data',
-//  'products.json')
-
-// const getFileFromFile=(cb)=>{
-//     fs.readFile(p,(err,fileContent)=>{
-//         if (err){
-//           cb([]) 
-//         }
-//         else{
-//             cb(JSON.parse(fileContent))
-//         }
-//     })}
+const getFileFromFile=(cb)=>{
+    fs.readFile(p,(err,fileContent)=>{
+        if (err){
+          cb([]) 
+        }
+        else{
+            cb(JSON.parse(fileContent))
+        }
+    })}
 
 // module.exports= class Product {
 //     constructor(id,title,ImgUrl, price,description){
@@ -69,20 +69,63 @@
 //     }
 // }
 
-const mongoConnect = require('../utils/database')
+const getDb = require('../utils/database').getDb
 
 const productModel= class Product {
-    constructor(id,title,ImgUrl, price,description){
+    constructor(title,ImgUrl, price,description){
                 this.title=title
                 this.ImgUrl=ImgUrl
                 this.price=price
                 this.description=description
-                this.id=id
             }
 
     save(){
-
+    const db= getDb()
+    return db.collection('products')
+        .insertOne(this)
+        .then(res=>{
+        console.log(res);
+    })
+        .catch(err=>{
+        console.log(err);
+    })
     }
+    static fetchData(){
+               const db=getDb()
+               return db.collection('products').find().toArray()
+               .then(result=>{
+                console.log(result);
+                return result;
+               })
+               .catch(err=>{
+                console.log(err);
+               })
+            }
+        
+    static findById(id){
+        const db=getDb()
+        return db.collection('products').find({_id: new mongodb.ObjectId(id)}).next()
+        .then(product=>{
+            console.log(product);
+            return product;
+         })
+        .catch(err=>{
+            console.log(err);
+             })
+        }
+    static deleteData(id){
+                getFileFromFile(products=>{
+                    const desiredId = products.findIndex(product=>product.id === id)
+                    const desiredProduct = products.find(product=>product.id === id)
+                    const remainingProduct = [...products];
+                    remainingProduct.splice(desiredId,1);
+                    fs.writeFile(p,JSON.stringify(remainingProduct),(err)=>{
+                        if(!err){
+                           cartModel.deleteProduct(id, desiredProduct.price) 
+                        }
+                    })
+                })
+            }
 }
 
 module.exports = productModel;
