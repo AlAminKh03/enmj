@@ -1,3 +1,5 @@
+const mongodb = require('mongodb')
+const objectid=mongodb.ObjectId
 const productModel =require("../models/product")
 
 exports.getAddProduct= (req,res,next)=>{
@@ -13,7 +15,7 @@ exports.postAddProduct=(req,res,next)=>{
     const price=req.body.price;    
     const description=req.body.description;    
 
-    const product = new productModel(title,ImgUrl,price,description)
+    const product = new productModel(title,ImgUrl,price,description,null, req.user._id)
     product.save()
     .then(result=>{
         console.log('created product');
@@ -39,24 +41,25 @@ exports.getProducts= (req,res,next)=>{
 
 }
 
-// exports.getEditProduct= (req,res,next)=>{
-//     const editMode=req.query.edit;
-//     if(!editMode){
-//         return res.redirect('/')
-//     }
-//     const prodId= req.params.productId;
-//     productModel.findById(prodId, product=>{
-//     if(!product){
-//         return res.redirect('/')
-//     }
-//     res.render('admin/edit-product',{
-//         product:product,
-//         path:"/admin/edit-product",
-//         title: "add-product",
-//         editMode:editMode
-//         })
-//     })  
-// }
+exports.getEditProduct= (req,res,next)=>{
+    const editMode=req.query.edit;
+    if(!editMode){
+        return res.redirect('/')
+    }
+    const prodId= req.params.productId;
+    productModel.findById(prodId)
+    .then(product=>{
+        if(!product){
+            return res.redirect('/')
+        } 
+        res.render('admin/edit-product',{
+        product:product,
+        path:"/admin/edit-product",
+        title: "add-product",
+        editMode:editMode
+        })
+    })
+}
 exports.postEditProduct=(req,res,next)=>{
     const prodId=req.body.productId;
     const updatedTitle = req.body.title;
@@ -64,7 +67,7 @@ exports.postEditProduct=(req,res,next)=>{
     const updatedPrice = req.body.price;
     const updatedDesc = req.body.description;
 
-    const updatedProduct= new productModel(prodId,updatedTitle,updatedImgUrl,updatedPrice,updatedDesc)
+    const updatedProduct= new productModel(updatedTitle,updatedImgUrl,updatedPrice,updatedDesc,new objectid(prodId))
     updatedProduct.save();
     res.redirect('/admin/products')
 
@@ -73,6 +76,11 @@ exports.postEditProduct=(req,res,next)=>{
 exports.postDeleteProduct=(req,res,next)=>{
 const prodId= req.body.productId
 productModel.deleteData(prodId)
-res.redirect('/admin/products')
+.then(()=>{
+    res.redirect('/admin/products')
+})
+.catch(err=>{
+    console.log(err);
+})
 }
 

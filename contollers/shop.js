@@ -1,5 +1,6 @@
 const productModel =require("../models/product")
 const cartModel=require("../models/cart")
+const UserModel = require("../models/user")
 
 exports.shopIndex=(req,res,next)=>{
     productModel.fetchData()
@@ -68,10 +69,15 @@ exports.getProduct=(req,res,next)=>{
 }
 exports.postProduct=(req,res,next)=>{
     const prodId= req.body.productId;
-    productModel.findById(prodId,product=>{
-    cartModel.addProduct(prodId,product.price)
-    })
-    res.redirect('/cart')
+    productModel.findById(prodId)
+   .then(product=>{
+    return req.user.addToCart(product) 
+   })
+   .then(result=>{
+    console.log(result);
+    res.redirect('/')
+   })
+    
 }
 
 exports.deleteCartProduct=(req,res,next)=>{

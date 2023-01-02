@@ -8,6 +8,7 @@ const adminRoutes =require('./Routes/admin')
 const shopRoutes= require("./Routes/shop")
 const notFound= require("./contollers/404")
 const database = require("./utils/database")
+const UserModel = require('./models/user')
 
 // 3rd party module 
 const express= require('express')
@@ -21,6 +22,18 @@ app.use(express.static(path.join(__dirname,'public')))
 app.set('view engine', 'ejs')
 app.set('views', 'views')
 
+
+app.use((req,res,next)=>{
+    UserModel.findById('63b1943b54d8f54d88f75ea4')
+    .then(user=>{
+        req.user = new UserModel(user.name, user.email, user.cart, user._id)
+        console.log({user});
+        next()
+    })
+    .catch(err=>{
+        console.log(err);
+    })
+})
 app.use('/admin',adminRoutes)
 app.use(shopRoutes)
 
