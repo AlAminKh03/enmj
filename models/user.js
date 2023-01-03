@@ -11,7 +11,7 @@ const UserModel = class User{
         const db=getDb()
             return db.collection('users').insertOne(this)
                 .then(users=>{
-                    console.log(users);
+                    // console.log("from save",  users);
                 })
                 .catch(err=>{
                     console.log(err);
@@ -25,7 +25,7 @@ const UserModel = class User{
         )
         let newQuantity= 1;
         let updatedCartItems = [...this.cart.items]
-        if(matchedProductIndex){
+        if(matchedProductIndex >= 0){
             newQuantity=this.cart.items[matchedProductIndex].quantity + 1 ;
             updatedCartItems[matchedProductIndex].quantity= newQuantity;
         }
@@ -35,6 +35,19 @@ const UserModel = class User{
         const updatedCart={items:updatedCartItems}
         const db= getDb();
         return db.collection('users').updateOne({_id:new mongodb.ObjectId(this._id)},{$set:{cart:updatedCart}})
+    }
+
+    getCart(product){
+        const productIds=this.cart.items.map(productId=> productId._id)
+    const db= getDb();
+    return db.collection('products').find({_id:{$in:productIds}}).toArray()
+    .then(product=>{
+        return product.map(singleProduct=>{
+            return {...singleProduct, quantity: this.cart.items.find(p=>{
+                return p._id.toString() === singleProduct._id.toString()
+            }).quantity}
+        })
+    })
     }
 
     static findById(id){

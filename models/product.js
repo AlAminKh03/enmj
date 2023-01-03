@@ -83,8 +83,8 @@ const productModel= class Product {
             }
 
     save(){
-        console.log(this._id);
-        console.log(mongodb.ObjectId(this._id));
+        // console.log(this._id);
+        // console.log(mongodb.ObjectId(this._id));
         const db= getDb()
         let dbOp;
         if(this._id){
@@ -95,7 +95,7 @@ const productModel= class Product {
             dbOp=db.collection('products').insertOne(this)
             }
         return dbOp.then(res=>{
-            console.log(res);
+            console.log("this one from product save()", res);
             })
             .catch(err=>{
                 console.log(err);
@@ -129,7 +129,7 @@ const productModel= class Product {
         const db=getDb()
         return db.collection('products').deleteOne({_id: new mongodb.ObjectId(id)})
         .then(result=>{
-            console.log(result);
+            console.log("this one from delete", result);
         })
         .catch(err=>{
             console.log(err);

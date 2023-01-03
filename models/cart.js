@@ -1,4 +1,5 @@
 const fs= require('fs');
+const getDb = require("../utils/database").getDb;
 const path =require('path');
 const p= path.join(path.dirname(process.mainModule.filename),
  'data',
@@ -55,15 +56,18 @@ module.exports= class Cart{
         })
     }
 
-static getCartData(cb){
-    fs.readFile(p,(err, fileContent)=>{
-        if(err){
-            cb([])
-        }
-        else{
-            cb(JSON.parse(fileContent))
-        }
-    })}
+static getCartData(){
+    const db = getDb() 
+    return db.collection('users').find().next()
+    .then(result=>{
+        // console.log("from cart model", result);
+        // console.log("from cart model", result.cart.items);
+        return result;
+    })
+    .catch(err=>{
+        console.log(err);
+    })   
+}
 
     static deleteCartItem(id,productPrice){
     fs.readFile(p,(err,fileContent)=>{
