@@ -4,7 +4,7 @@ const UserModel = require("../models/user")
 const mongodb= require("mongodb")
 
 exports.shopIndex=(req,res,next)=>{
-    productModel.fetchData()
+    productModel.find()
     .then(products=>{
             res.render("shop/index",{
                 prods:products,
@@ -17,7 +17,7 @@ exports.shopIndex=(req,res,next)=>{
     })
 }
 exports.shopProductList=(req,res,next)=>{
-    productModel.fetchData()
+    productModel.find()
     .then(products=>{
         res.render("shop/product-list",{
             prods:products,
@@ -99,15 +99,27 @@ exports.postProduct=(req,res,next)=>{
 
 exports.deleteCartProduct=(req,res,next)=>{
     const prodId = req.body.productId;
-    productModel.findById(prodId, product=>{
-        cartModel.deleteCartItem(prodId, product.price)
+    req.user.deleteCartItem(prodId)
+    .then(result=>{
         res.redirect('/cart')
     })
 
 }
-exports.shopOrder=(req,res,next)=>{
-    res.render('shop/order',{
-       path:'/order',
-       title:'Order' 
+exports.postOrder=(req,res,next)=>{
+    req.user.addOrder()
+    .then(result=>{
+        res.redirect('/order')
     })
+}
+
+exports.shopOrder=(req,res,next)=>{
+    req.user.getOrder()
+    .then(orders=>{
+        res.render('shop/order',{
+            path:'/order',
+            title:'Order' ,
+            orders:orders
+         })
+    })
+    
 }

@@ -1,13 +1,13 @@
 // core built in module 
 const http= require('node:http')
 const path = require("path")
+const mongoose= require('mongoose')
 
 
 // relative path 
 const adminRoutes =require('./Routes/admin')
 const shopRoutes= require("./Routes/shop")
 const notFound= require("./contollers/404")
-const database = require("./utils/database")
 const UserModel = require('./models/user')
 
 // 3rd party module 
@@ -24,10 +24,10 @@ app.set('views', 'views')
 
 
 app.use((req,res,next)=>{
-    UserModel.findById('63b1943b54d8f54d88f75ea4')
+    UserModel.findById('63b54f717f36fad43a001e07')
     .then(user=>{
-        req.user = new UserModel(user.name, user.email, user.cart, user._id)
-        console.log({user});
+        req.user = user
+        // console.log({user});
         next()
     })
     .catch(err=>{
@@ -40,9 +40,26 @@ app.use(shopRoutes)
 app.use(notFound.notFound)
 
 
+mongoose.set('strictQuery', true);
+mongoose.connect('mongodb+srv://node-farm:vMSHxGGr2dHzDbXg@cluster0.n4boazi.mongodb.net/shop?retryWrites=true&w=majority', { useNewUrlParser: true })
+.then(result=>{
+    UserModel.findOne().then(user=>{
+        if(!user){
+            const user = new UserModel({
+                name:"Al Amin",
+                email: "alamin@test.com",
+                cart:{
+                    items:[]
+                }
+            })
+            user.save();
+        }})
 
-database.mongoConnect(()=>{
     app.listen(8000)
+    console.log("Connected");
+})
+.catch(err=>{
+    console.log(err);
 })
 
 

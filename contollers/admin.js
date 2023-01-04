@@ -15,10 +15,10 @@ exports.postAddProduct=(req,res,next)=>{
     const price=req.body.price;    
     const description=req.body.description;    
 
-    const product = new productModel(title,ImgUrl,price,description,null, req.user._id)
+    const product = new productModel({title,ImgUrl,price, description})
     product.save()
     .then(result=>{
-        console.log('created product');
+        // console.log('created product');
         res.redirect('/')
     })
     .catch(err=>{
@@ -27,7 +27,7 @@ exports.postAddProduct=(req,res,next)=>{
         
     }
 exports.getProducts= (req,res,next)=>{
-    productModel.fetchData()
+    productModel.find()
     .then(products=>{
             res.render("admin/products",{
                 prods:products,
@@ -67,15 +67,23 @@ exports.postEditProduct=(req,res,next)=>{
     const updatedPrice = req.body.price;
     const updatedDesc = req.body.description;
 
-    const updatedProduct= new productModel(updatedTitle,updatedImgUrl,updatedPrice,updatedDesc,new objectid(prodId))
-    updatedProduct.save();
-    res.redirect('/admin/products')
+    productModel.findById(prodId).then(product=>{
+        product.title= updatedTitle
+        product.ImgUrl= updatedImgUrl
+        product.price= updatedPrice
+        product.description = updatedDesc
+        product.save()
+    })
+    .then(result=>{
+        res.redirect('/admin/products')
+    })
+    
 
 }
 
 exports.postDeleteProduct=(req,res,next)=>{
 const prodId= req.body.productId
-productModel.deleteData(prodId)
+productModel.findByIdAndDelete(prodId)
 .then(()=>{
     res.redirect('/admin/products')
 })

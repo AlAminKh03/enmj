@@ -1,4 +1,4 @@
-// core built in module 
+// // core built in module 
 const path = require('path')
 const adminRoutes=require('./admin')
 
@@ -13,7 +13,9 @@ Router.get('/product-list',shopController.shopProductList)
 Router.get('/cart',shopController.shopCart)
 Router.post('/cart',shopController.postProduct)
 Router.post('/delete-cart',shopController.deleteCartProduct)
-Router.get('/order',shopController.shopOrder)
+
 Router.get('/product/:productId',shopController.getProduct)
 Router.get('/product-detils',shopController.shopProductDetails)
+Router.get('/order',shopController.shopOrder)
+Router.post('/create-order',shopController.postOrder)
 module.exports=Router;
