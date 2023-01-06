@@ -7,6 +7,7 @@ const mongoose= require('mongoose')
 // relative path 
 const adminRoutes =require('./Routes/admin')
 const shopRoutes= require("./Routes/shop")
+const authRoutes= require("./Routes/auth")
 const notFound= require("./contollers/404")
 const UserModel = require('./models/user')
 
@@ -36,7 +37,7 @@ app.use((req,res,next)=>{
 })
 app.use('/admin',adminRoutes)
 app.use(shopRoutes)
-
+app.use(authRoutes)
 app.use(notFound.notFound)
 
 

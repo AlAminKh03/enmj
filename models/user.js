@@ -1,4 +1,5 @@
 const mongoose= require('mongoose')
+const productModel = require('./product')
 const UserSchema= new mongoose.Schema({
     name:{
         type:String,
@@ -10,12 +11,57 @@ const UserSchema= new mongoose.Schema({
     },
     cart:{
         items:[{
-            productId:{type: mongoose.Schema.Types.ObjectId, required:true},
+            productId:{type: mongoose.Schema.Types.ObjectId, ref:'Products' ,required:true},
             quantity:{type:Number, required:true}
         }]
     }
 })
 
+    UserSchema.methods.addToCart= function (product){
+            const matchedProductIndex = this.cart.items.findIndex(p=>{
+                    return  p.productId.toString() === product._id.toString()
+                    }
+                )
+                let newQuantity= 1;
+                let updatedCartItems = [...this.cart.items]
+                    if(matchedProductIndex >= 0){
+                        newQuantity=this.cart.items[matchedProductIndex].quantity + 1 ;
+                        updatedCartItems[matchedProductIndex].quantity= newQuantity;
+                     }
+                    else{
+                        updatedCartItems.push({productId: product._id, quantity:newQuantity})
+                    }
+                const updatedCart={items:updatedCartItems}
+                      this.cart= updatedCart  
+                    return this.save()
+}
+
+UserSchema.methods.getCart= function (){
+    const productIds= this.cart.items.map(product=> product.productId)
+    return productModel.find({_id:{$in:productIds}}).lean().exec()
+    .then(products=>{
+        console.log(products);
+        return products.map(singleProduct=>{
+            return {...singleProduct, quantity: this.cart.items.find(p=>{
+                return p.productId.toString() === singleProduct._id.toString()
+            }).quantity}
+        })
+    })
+}
+
+UserSchema.methods.deleteCartItem= function(id){
+                const remaningCartItems= this.cart.items.filter(item=>{
+                    return item.productId.toString() !== id.toString()
+                })
+                this.cart.items= remaningCartItems;
+                return this.save()
+
+}
+
+UserSchema.methods.clearCartItems = function(){
+    this.cart.items =[];
+    return this.save()
+}
 module.exports= mongoose.model('Users', UserSchema)
 
 // const mongodb= require('mongodb')

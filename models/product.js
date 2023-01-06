@@ -16,6 +16,11 @@ const productSchema= new mongoose.Schema({
     ImgUrl:{
         type:String,
         required:true
+    },
+    userId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'Users',
+        required:true
     }
 })
 

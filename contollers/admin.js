@@ -6,7 +6,8 @@ exports.getAddProduct= (req,res,next)=>{
     res.render('admin/edit-product',{
         path:"/admin/add-product",
         title: "add-product", 
-        editMode:false
+        editMode:false,
+        isAuthenticated: req.isLoggedIn
         })
 }
 exports.postAddProduct=(req,res,next)=>{
@@ -15,7 +16,7 @@ exports.postAddProduct=(req,res,next)=>{
     const price=req.body.price;    
     const description=req.body.description;    
 
-    const product = new productModel({title,ImgUrl,price, description})
+    const product = new productModel({title,ImgUrl,price, description , userId: req.user})
     product.save()
     .then(result=>{
         // console.log('created product');
@@ -32,7 +33,8 @@ exports.getProducts= (req,res,next)=>{
             res.render("admin/products",{
                 prods:products,
                 path:'/admin/products', 
-                title: "products"
+                title: "products",
+                isAuthenticated: req.isLoggedIn
             }
     )})
     .catch(err=>{
@@ -56,7 +58,8 @@ exports.getEditProduct= (req,res,next)=>{
         product:product,
         path:"/admin/edit-product",
         title: "add-product",
-        editMode:editMode
+        editMode:editMode,
+        isAuthenticated: req.isLoggedIn
         })
     })
 }

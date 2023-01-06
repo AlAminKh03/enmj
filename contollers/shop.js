@@ -2,6 +2,8 @@ const productModel =require("../models/product")
 const cartModel=require("../models/cart")
 const UserModel = require("../models/user")
 const mongodb= require("mongodb")
+const OrderModel = require("../models/order")
+
 
 exports.shopIndex=(req,res,next)=>{
     productModel.find()
@@ -9,7 +11,8 @@ exports.shopIndex=(req,res,next)=>{
             res.render("shop/index",{
                 prods:products,
                 path:'/', 
-                title: "shop"
+                title: "shop",
+                isAuthenticated: req.isLoggedIn
             })
     })
     .catch(err=>{
@@ -22,7 +25,8 @@ exports.shopProductList=(req,res,next)=>{
         res.render("shop/product-list",{
             prods:products,
             path:'/product-list', 
-            title: "product-list"
+            title: "product-list",
+            isAuthenticated: req.isLoggedIn
         })
 })
 .catch(err=>{
@@ -30,42 +34,7 @@ exports.shopProductList=(req,res,next)=>{
 })
 }
 
-exports.shopCart = (req, res, next) => {
-    req.user.getCart()
-    .then(products=>{
-        res.render('shop/cart', {
-            path: '/cart',
-            title: 'Cart',
-            products: products
-          })
-    })
-    //   .then(cartData => {
-    //     // console.log("logging from shopCart", cartData.cart.items);
-    //    return productModel.fetchData()
-    //       .then(products => {
-    //         const matchedData = [];
-    //         for (const product of products) {
-    //             // console.log(product);
-    //           const cart = cartData.cart.items.find(userCart => {
-    //             return userCart._id.toString().split(' ')[0] ===  product._id.toString().split(' ')[0]
-    //         })
-    //           const cartIndex = cartData.cart.items.findIndex(userCart =>userCart._id.toString().split(' ')[0] === product._id.toString().split(' ')[0])
-    //           console.log("logging from loop", cart, cartIndex);
-    //           if (cart) {
-    //             matchedData.push({ product, qty: cart.quantity })
-    //           }
-    //           else{
-    //           }
-    //         }
-    //         // console.log(matchedData);
-    //         res.render('shop/cart', {
-    //           path: '/cart',
-    //           title: 'Cart',
-    //           products: matchedData
-    //         })
-    //       })
-    //   }) // missing parenthesis here
-  }
+
 exports.shopProductDetails=(req,res,next)=>{
     res.render('shop/product-details',{
        path:'/product-details',
@@ -80,10 +49,23 @@ exports.getProduct=(req,res,next)=>{
     res.render('shop/product-details',{
         product:product,
         title:product.title,
-        path:'/products'
+        path:'/products',
+        isAuthenticated: req.isLoggedIn
     })
  })
 }
+exports.shopCart = (req, res, next) => {
+    req.user.populate('cart.items.productId')
+    .then(products=>{
+        const Cartproducts= products.cart.items
+        res.render('shop/cart', {
+            path: '/cart',
+            title: 'Cart',
+            products: Cartproducts,
+            isAuthenticated: req.isLoggedIn
+          })
+    })
+  }
 exports.postProduct=(req,res,next)=>{
     const prodId= req.body.productId;
     productModel.findById(prodId)
@@ -106,19 +88,40 @@ exports.deleteCartProduct=(req,res,next)=>{
 
 }
 exports.postOrder=(req,res,next)=>{
-    req.user.addOrder()
+    req.user.populate('cart.items.productId')
+    .then(user=>{
+      const productData = user.cart.items.map(p=>{
+        return { product: {...p.productId._doc}, quantity: p.quantity}
+      })
+      console.log(productData);
+      const order = new OrderModel({
+        products: productData,
+        users:{
+            name: req.user.name,
+            userId: req.user
+        }
+      })
+      return order.save()
+    })
     .then(result=>{
+        req.user.clearCartItems()
         res.redirect('/order')
     })
+    .catch(err=>{
+        console.log(err);
+    })
+    
 }
 
 exports.shopOrder=(req,res,next)=>{
-    req.user.getOrder()
+    OrderModel.find({'users.userId':req.user._id})
     .then(orders=>{
+        console.log('logging from orders', orders.map(p=>p.products));
         res.render('shop/order',{
             path:'/order',
             title:'Order' ,
-            orders:orders
+            orders:orders,
+            isAuthenticated: req.isLoggedIn
          })
     })
     
