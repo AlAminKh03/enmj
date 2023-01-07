@@ -2,6 +2,8 @@
 const http= require('node:http')
 const path = require("path")
 const mongoose= require('mongoose')
+const session= require('express-session')
+const MongoDBStore = require('connect-mongodb-session')(session)
 
 
 // relative path 
@@ -16,16 +18,35 @@ const express= require('express')
 const bodyParser=require("body-parser")
 const app = express()
 
+
+const MONGO_URI ='mongodb+srv://node-farm:vMSHxGGr2dHzDbXg@cluster0.n4boazi.mongodb.net/shop?retryWrites=true&w=majority'
+
+const store = new MongoDBStore({
+    uri: MONGO_URI,
+    collection:'sessions'
+})
+
 // middleware 
+app.use(session({
+    secret:"my secret",
+    resave:false, 
+    saveUninitialized:false,
+    store:store
+}))
 app.use(bodyParser.urlencoded({extended:false}))
 app.use(express.static(path.join(__dirname,'public')))
+
 
 app.set('view engine', 'ejs')
 app.set('views', 'views')
 
 
 app.use((req,res,next)=>{
-    UserModel.findById('63b54f717f36fad43a001e07')
+    console.log("from index", req.session.user);
+    if(!req.session.user){
+        return next()
+    }
+    UserModel.findById(req.session.user._id)
     .then(user=>{
         req.user = user
         // console.log({user});
@@ -42,9 +63,10 @@ app.use(notFound.notFound)
 
 
 mongoose.set('strictQuery', true);
-mongoose.connect('mongodb+srv://node-farm:vMSHxGGr2dHzDbXg@cluster0.n4boazi.mongodb.net/shop?retryWrites=true&w=majority', { useNewUrlParser: true })
+mongoose.connect(MONGO_URI, { useNewUrlParser: true })
 .then(result=>{
     UserModel.findOne().then(user=>{
+        console.log(user);
         if(!user){
             const user = new UserModel({
                 name:"Al Amin",

@@ -16,7 +16,7 @@ exports.postAddProduct=(req,res,next)=>{
     const price=req.body.price;    
     const description=req.body.description;    
 
-    const product = new productModel({title,ImgUrl,price, description , userId: req.user})
+    const product = new productModel({title,ImgUrl,price, description , userId: req.session.user})
     product.save()
     .then(result=>{
         // console.log('created product');

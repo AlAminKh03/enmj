@@ -55,7 +55,7 @@ exports.getProduct=(req,res,next)=>{
  })
 }
 exports.shopCart = (req, res, next) => {
-    req.user.populate('cart.items.productId')
+    req.session.user.populate('cart.items.productId')
     .then(products=>{
         const Cartproducts= products.cart.items
         res.render('shop/cart', {
@@ -70,7 +70,7 @@ exports.postProduct=(req,res,next)=>{
     const prodId= req.body.productId;
     productModel.findById(prodId)
    .then(product=>{
-    return req.user.addToCart(product) 
+    return req.session.user.addToCart(product) 
    })
    .then(result=>{
     // console.log("consolling from post product", result);
@@ -81,14 +81,14 @@ exports.postProduct=(req,res,next)=>{
 
 exports.deleteCartProduct=(req,res,next)=>{
     const prodId = req.body.productId;
-    req.user.deleteCartItem(prodId)
+    req.session.user.deleteCartItem(prodId)
     .then(result=>{
         res.redirect('/cart')
     })
 
 }
 exports.postOrder=(req,res,next)=>{
-    req.user.populate('cart.items.productId')
+    req.session.user.populate('cart.items.productId')
     .then(user=>{
       const productData = user.cart.items.map(p=>{
         return { product: {...p.productId._doc}, quantity: p.quantity}
@@ -97,14 +97,14 @@ exports.postOrder=(req,res,next)=>{
       const order = new OrderModel({
         products: productData,
         users:{
-            name: req.user.name,
-            userId: req.user
+            name: req.session.user.name,
+            userId: req.session.user
         }
       })
       return order.save()
     })
     .then(result=>{
-        req.user.clearCartItems()
+        req.session.user.clearCartItems()
         res.redirect('/order')
     })
     .catch(err=>{
@@ -114,7 +114,7 @@ exports.postOrder=(req,res,next)=>{
 }
 
 exports.shopOrder=(req,res,next)=>{
-    OrderModel.find({'users.userId':req.user._id})
+    OrderModel.find({'users.userId':req.session.user._id})
     .then(orders=>{
         console.log('logging from orders', orders.map(p=>p.products));
         res.render('shop/order',{
