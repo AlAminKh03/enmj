@@ -26,7 +26,8 @@ const store = new MongoDBStore({
     uri: MONGO_URI,
     collection:'sessions'
 })
-
+app.use(bodyParser.urlencoded({extended:false}))
+app.use(express.static(path.join(__dirname,'public')))
 // middleware 
 app.use(session({
     secret:"my secret",
@@ -34,8 +35,8 @@ app.use(session({
     saveUninitialized:false,
     store:store
 }))
-app.use(bodyParser.urlencoded({extended:false}))
-app.use(express.static(path.join(__dirname,'public')))
+app.use(csrfProtection)
+
 
 
 app.set('view engine', 'ejs')
@@ -56,6 +57,13 @@ app.use((req,res,next)=>{
     .catch(err=>{
         console.log(err);
     })
+})
+
+app.use((req,res,next)=>{
+    res.locals.isAuthenticated= req.session.isLoggedIn
+    res.locals.csrfToken = req.csrfToken()
+    console.log(res.locals.csrfToken);
+    next()
 })
 app.use('/admin',adminRoutes)
 app.use(shopRoutes)

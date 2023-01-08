@@ -13,13 +13,16 @@
             <ul class="main-header__item-list">
                 <% if (!isAuthenticated) { %>
                 <li class="main-header__item">
+                    <input type="hidden" name="_csrf" value="<%=csrfToken %>">
                     <a class="<%= path === '/login' ? 'active' : '' %>" href="/login">Login</a>
                 </li>
                 <li class="main-header__item">
+                    <input type="hidden" name="_csrf" value="<%=csrfToken %>">
                     <a class="<%= path === '/signup' ? 'active' : '' %>" href="/signup">Signup</a>
                 </li>
                 <% } else { %>
               <form action="/logout" method="post">
+                <input type="hidden" name="_csrf" value="<%=csrfToken %>">
                 <li class="main-header__item">
                     <button >LogOut</button>
                 </li>
