@@ -23,7 +23,9 @@
                 </div>
                 <div class="card__actions">
                     <a class="btn" href="/product/<%=product._id %>">Details</a>
-                    <%-include('../includes/add-tocart.ejs') %>
+                    <% if (isAuthenticated) { %>
+                        <%-include('../includes/add-tocart.ejs') %>
+                    <% } %>
                 </div>
             </article>
         </div>

@@ -1,11 +1,12 @@
 const mongoose= require('mongoose')
 const productModel = require('./product')
 const UserSchema= new mongoose.Schema({
-    name:{
-        type:String,
-        require:true
-    },
+  
     email:{
+        type:String,
+        required: true
+    },
+    password:{
         type:String,
         required: true
     },
@@ -17,7 +18,7 @@ const UserSchema= new mongoose.Schema({
     }
 })
 
-    UserSchema.methods.addToCart= function (product){
+UserSchema.methods.addToCart= function (product){
             const matchedProductIndex = this.cart.items.findIndex(p=>{
                     return  p.productId.toString() === product._id.toString()
                     }

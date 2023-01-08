@@ -4,6 +4,7 @@ const path = require("path")
 const mongoose= require('mongoose')
 const session= require('express-session')
 const MongoDBStore = require('connect-mongodb-session')(session)
+const csrf = require('csurf')
 
 
 // relative path 
@@ -17,7 +18,7 @@ const UserModel = require('./models/user')
 const express= require('express')
 const bodyParser=require("body-parser")
 const app = express()
-
+const csrfProtection = csrf()
 
 const MONGO_URI ='mongodb+srv://node-farm:vMSHxGGr2dHzDbXg@cluster0.n4boazi.mongodb.net/shop?retryWrites=true&w=majority'
 
@@ -65,19 +66,6 @@ app.use(notFound.notFound)
 mongoose.set('strictQuery', true);
 mongoose.connect(MONGO_URI, { useNewUrlParser: true })
 .then(result=>{
-    UserModel.findOne().then(user=>{
-        console.log(user);
-        if(!user){
-            const user = new UserModel({
-                name:"Al Amin",
-                email: "alamin@test.com",
-                cart:{
-                    items:[]
-                }
-            })
-            user.save();
-        }})
-
     app.listen(8000)
     console.log("Connected");
 })
