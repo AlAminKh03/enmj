@@ -97,7 +97,7 @@ exports.postOrder=(req,res,next)=>{
       const order = new OrderModel({
         products: productData,
         users:{
-            name: req.user.name,
+            email: req.user.email,
             userId: req.user
         }
       })
