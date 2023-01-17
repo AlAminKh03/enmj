@@ -1,4 +1,5 @@
 const express= require('express');
+const {check, body}= require('express-validator')
 const Router = express.Router()
 const authController = require('../contollers/auth')
 
@@ -7,7 +8,23 @@ Router.post('/login', authController.postAuth)
 Router.get('/signup', authController.getSignup);
 Router.get('/reset', authController.getResetPass);
 Router.post('/reset', authController.postResetPass);
-Router.post('/signup', authController.postSignup);
+Router.post('/signup', 
+[check('email')
+.isEmail()
+.withMessage('email is invalid'),
+body('password','please insert only text or numbers at leaset 6 character')
+.isLength('6')
+.isAlphanumeric(),
+body('confirmPassword')
+.custom((value,{req})=>{
+    if (value !== req.body.password){
+        throw new Error ('password have to match')
+    }
+    else{
+        return true
+    }
+})]
+, authController.postSignup);
 Router.post('/logout', authController.postLogout)
 Router.get('/reset/:token', authController.getNewPassword)
 Router.post('/new-password', authController.postNewPassword)

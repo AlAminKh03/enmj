@@ -1,4 +1,5 @@
 // core built in module 
+require('dotenv').config()
 const http= require('node:http')
 const path = require("path")
 const mongoose= require('mongoose')

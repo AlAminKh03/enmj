@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs')
 const crypto= require('crypto')
+const {validationResult}= require('express-validator')
 const User = require('../models/user')
 const nodemailer= require('nodemailer')
 const sendGridTransport = require('nodemailer-sendgrid-transport')
@@ -116,6 +117,15 @@ exports.postSignup = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
     const confirmPassword = req.body.confirmPassword;
+    const errors = validationResult(req)
+    console.log(errors.array())
+    if(!errors.isEmpty()){
+      return res.status(422).render('auth/signup', {
+        path: '/signup',
+        title: 'Signup',
+        flashErrMsg:errors.array()[0].msg
+      })
+    }
     User.findOne({ email: email })
       .then(userDoc => {
         if (userDoc) {
@@ -198,6 +208,7 @@ exports.postResetPass= (req,res,next)=>{
       user.resetTokenExpiration = Date.now() + 3600000
       return user.save()
       .then(result=>{
+        req.flash('success', 'Reset token has send your email.')
         res.redirect('/')
         transporter.sendMail({
           to: req.body.email,
