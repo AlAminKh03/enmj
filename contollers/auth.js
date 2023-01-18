@@ -14,21 +14,25 @@ const transporter = nodemailer.createTransport(sendGridTransport({
 exports.getAuth=(req,res,next)=>{
 let errorMsg = req.flash('error')
 let successMsg= req.flash('success')
-if(errorMsg.length > 0){
-    errorMsg=errorMsg[0]
-}else{
+  if(errorMsg.length > 0){
+      errorMsg=errorMsg[0]
+  }else{
     errorMsg=null
-}
-if(successMsg.length > 0){
-    successMsg=successMsg[0]
+  }
+  if(successMsg.length > 0){
+      successMsg=successMsg[0]
     }else{
         successMsg=null
     }
-    res.render('auth/login',{
+  res.render('auth/login',{
         path:'/login',
         title:'Login',
         flashMsg:errorMsg,
-        flashSuccessMsg :successMsg
+        flashSuccessMsg :successMsg,
+        oldInput:{
+          email:'',
+          password: ''
+        }
      })
 }
 
@@ -44,6 +48,11 @@ exports.getSignup = (req, res, next) => {
       path: '/signup',
       title: 'Signup',
       flashErrMsg:errorMsg,
+      oldInput:{
+        email:'',
+        password: '',
+        confirmPassword: ''
+      }
       
     });
   };
@@ -52,17 +61,44 @@ exports.getSignup = (req, res, next) => {
 exports.postAuth = (req,res,next)=>{
     const email= req.body.email;
     const password = req.body.password
+    const errors= validationResult(req)
+    console.log(errors);
+    if (!errors.isEmpty()){
+      return res.status(422).render('auth/login',{
+        path: '/login',
+        title: 'Login',
+        flashErrMsg:errors.array()[0].msg,
+        oldInput:{
+          email:email,
+          password: password,
+        }
+      })
+    }
     User.findOne({email:email})
     .then(user=>{
         if(!user){
-            req.flash('error','email is invalid')
-            return res.redirect('/login')
+            return res.status(422).render('auth/login',{
+              path: '/login',
+              title: 'Login',
+              flashErrMsg:'email is invalid',
+              oldInput:{
+                email:email,
+                password: password,
+              }
+            })
         }
-        bcrypt.compare(password, user.password)
+      bcrypt.compare(password, user.password)
         .then(matched=>{
             if (!matched){
-                req.flash('error','password is invalid')
-                return res.redirect('/login')
+              return res.status(422).render('auth/login',{
+                path: '/login',
+                title: 'Login',
+                flashErrMsg:'Password is invalid',
+                oldInput:{
+                  email:email,
+                  password: password,
+                }
+              })
             }
             req.session.isLoggedIn= true
             req.session.user = user
@@ -70,7 +106,10 @@ exports.postAuth = (req,res,next)=>{
             console.log(err);
             res.redirect('/')
         })
-        })
+      })
+      .catch(err=>{
+        console.log(err);
+      })
         
     })
 }
@@ -116,27 +155,22 @@ exports.postAuth = (req,res,next)=>{
 exports.postSignup = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
-    const confirmPassword = req.body.confirmPassword;
     const errors = validationResult(req)
     console.log(errors.array())
     if(!errors.isEmpty()){
       return res.status(422).render('auth/signup', {
         path: '/signup',
         title: 'Signup',
-        flashErrMsg:errors.array()[0].msg
+        flashErrMsg:errors.array()[0].msg,
+        oldInput:{
+          email:email,
+          password: password,
+          confirmPassword: req.body.confirmPassword
+        }
       })
     }
-    User.findOne({ email: email })
-      .then(userDoc => {
-        if (userDoc) {
-          req.flash(
-            'error',
-            'E-Mail exists already, please pick a different one.'
-          );
-          return res.redirect('/signup');
-        }
-        return bcrypt
-          .hash(password, 12)
+  bcrypt
+        .hash(password, 12)
           .then(hashedPassword => {
             const user = new User({
               email: email,
@@ -158,10 +192,6 @@ exports.postSignup = (req, res, next) => {
           .catch(err => {
             console.log(err);
           });
-      })
-      .catch(err => {
-        console.log(err);
-      });
   };
 
 

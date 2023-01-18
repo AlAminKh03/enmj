@@ -7,24 +7,19 @@
     <%- include('../includes/navigation.ejs') %>
 
     <main>
-        <% if(flashMsg) { %>
+        <% if(flashErrMsg) { %>
             <div class="userMessage userMessage--error">
-                <%= flashMsg %>
+                <%= flashErrMsg %>
             </div>
             <% } %>
-            <% if (flashSuccessMsg) { %>
-                <div class="userMessage ">
-                    <%= flashSuccessMsg %>
-                </div>
-                <% } %>
         <form class="login-form" action="/login" method="POST">
             <div class="form-control">
                 <label for="email">E-Mail</label>
-                <input type="email" name="email" id="email">
+                <input type="email" name="email" id="email" value="<%= oldInput.email %>">
             </div>
             <div class="form-control">
                 <label for="password">Password</label>
-                <input type="password" name="password" id="password">
+                <input type="password" name="password" id="password" value="<%= oldInput.email %>">
             </div>
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <button class="btn" type="submit">Login</button>
