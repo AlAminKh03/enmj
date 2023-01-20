@@ -6,22 +6,25 @@
     <%- include('../includes/navigation.ejs') %>
 
     <main>
-        <form class="product-form" action="/admin/<% if(editMode){ %>edit-product <%} else { %>add-product <% } %>" method="POST">
+        <% if (errMessage) { %>
+            <div class="user-message user-message--error"><%= errMessage %></div>
+        <% } %>
+        <form class="product-form" action="/admin/<% if(editMode ){ %>edit-product <%} else { %>add-product <% } %>" method="POST">
             <div class="form-control">
                 <label for="title">Title</label>
-                <input type="text" name="title" id="title" value="<% if(editMode){ %> <%=product.title %> <% } %>">
+                <input type="text" name="title" id="title" value="<% if(editMode || hasError){ %> <%=product.title %> <% } %>">
             </div>
             <div class="form-control">
                 <label for="ImgUrl">Image Url</label>
-                <input type="text" name="ImgUrl" id="ImgUrl" value="<% if(editMode){ %> <%=product.ImgUrl %> <% } %>">
+                <input type="text" name="ImgUrl" id="ImgUrl" value="<% if(editMode || hasError){ %> <%=product.ImgUrl%> <% } %>">
             </div>
             <div class="form-control">
                 <label for="price">Price</label>
-                <input type="number" name="price" id="price" value="<% if (editMode) { %><%=product.price %><% } %>" >
+                <input type="number" name="price" id="price" value="<% if (editMode || hasError) { %><%=product.price %><% } %>" >
             </div>
             <div class="form-control">
                 <label for="description">Description</label>
-                <textarea name="description" id="description" rows="5" ><% if(editMode){ %> <%=product.description %> <% } %></textarea>
+                <textarea name="description" id="description" rows="5" ><% if(editMode || hasError){ %> <%=product.description %> <% } %></textarea>
             </div>
             
                 <% if(editMode) { %> <input type="hidden" name="productId" value="<%= product._id %>" > <% } %>

@@ -1,4 +1,6 @@
 const mongodb = require('mongodb')
+const mongoose = require('mongoose')
+const {validationResult}= require('express-validator')
 const objectid=mongodb.ObjectId
 const productModel =require("../models/product")
 
@@ -7,7 +9,14 @@ exports.getAddProduct= (req,res,next)=>{
         path:"/admin/add-product",
         title: "add-product", 
         editMode:false,
-        isAuthenticated: req.session.isLoggedIn
+        hasError: false,
+        errMessage:null,
+        oldInput:{
+         title:'',
+         ImgUrl:'',
+         price:'',
+         description:''
+        }
         })
 }
 exports.postAddProduct=(req,res,next)=>{
@@ -15,16 +24,39 @@ exports.postAddProduct=(req,res,next)=>{
     const ImgUrl=req.body.ImgUrl;    
     const price=req.body.price;    
     const description=req.body.description;    
+    const errors= validationResult(req)
 
-    const product = new productModel({title,ImgUrl,price, description , userId: req.session.user})
+if(!errors.isEmpty()){
+    return res.status(422).render('admin/edit-product',{
+        path:"/admin/add-product",
+        title: "add-product", 
+        editMode:false,
+       hasError: true,
+       errMessage:errors.array()[0].msg,
+       product:{
+        title:title,
+        ImgUrl:ImgUrl,
+        price:price,
+        description:description
+       }
+        })
+}
+
+    const product = new productModel({
+        _id:new mongoose.Types.ObjectId('63b59ae64ad5fc96c152a9f4'),
+        title,
+        ImgUrl,
+        price, 
+        description ,
+        userId: req.session.user})
     product.save()
     .then(result=>{
         // console.log('created product');
         res.redirect('/')
     })
     .catch(err=>{
-        console.log(err);
-    })
+        return res.redirect('/404/500')
+})
         
     }
 exports.getProducts= (req,res,next)=>{
@@ -57,9 +89,11 @@ exports.getEditProduct= (req,res,next)=>{
         res.render('admin/edit-product',{
         product:product,
         path:"/admin/edit-product",
-        title: "add-product",
+        title: "edit-product",
         editMode:editMode,
-        isAuthenticated: req.session.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn,
+        hasError:false,
+        errMessage:null
         })
     })
 }
@@ -70,6 +104,24 @@ exports.postEditProduct=(req,res,next)=>{
     const updatedPrice = req.body.price;
     const updatedDesc = req.body.description;
 
+    const errors= validationResult(req)
+    if(!errors.isEmpty()){
+        console.log(errors.array());
+        return res.status(422).render('admin/edit-product',{
+            path:"/admin/edit-product",
+            title: "edit-product", 
+            editMode:true,
+           hasError: true,
+           errMessage:errors.array()[0].msg,
+           product:{
+            title:updatedTitle,
+            ImgUrl:updatedImgUrl,
+            price:updatedPrice,
+            description:updatedDesc,
+            _id:prodId
+           }
+            })
+    }
     productModel.findById(prodId)
     .then(product=>{
         product.title= updatedTitle
@@ -84,9 +136,6 @@ exports.postEditProduct=(req,res,next)=>{
     .catch(err=>{
         console.log(err);
     })
-    
-    
-
 }
 
 exports.postDeleteProduct=(req,res,next)=>{

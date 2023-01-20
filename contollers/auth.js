@@ -12,23 +12,11 @@ const transporter = nodemailer.createTransport(sendGridTransport({
 }))
 
 exports.getAuth=(req,res,next)=>{
-let errorMsg = req.flash('error')
-let successMsg= req.flash('success')
-  if(errorMsg.length > 0){
-      errorMsg=errorMsg[0]
-  }else{
-    errorMsg=null
-  }
-  if(successMsg.length > 0){
-      successMsg=successMsg[0]
-    }else{
-        successMsg=null
-    }
   res.render('auth/login',{
         path:'/login',
         title:'Login',
-        flashMsg:errorMsg,
-        flashSuccessMsg :successMsg,
+        flashErrMsg:null,
+        flashSuccessMsg :null,
         oldInput:{
           email:'',
           password: ''

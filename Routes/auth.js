@@ -5,7 +5,18 @@ const Router = express.Router()
 const authController = require('../contollers/auth')
 
 Router.get('/login', authController.getAuth)
-Router.post('/login', authController.postAuth)
+Router.post('/login',
+[
+    check('email')
+    .isEmail()
+    .withMessage('invalid user')
+    .normalizeEmail(),
+    body('password', 'Please insert correct password') 
+    .isLength({min:6})
+    .isAlphanumeric()
+    .trim()
+],
+authController.postAuth)
 Router.get('/signup', authController.getSignup);
 Router.get('/reset', authController.getResetPass);
 Router.post('/reset', authController.postResetPass);
@@ -20,9 +31,11 @@ Router.post('/signup',
          return Promise.reject('E-Mail exists already, please pick a different one.')
         }})}),
     body('password','please insert only text or numbers at leaset 6 character')
-    .isLength('6')
-    .isAlphanumeric(),
+    .isLength({min:6})
+    .isAlphanumeric()
+    .trim(),
     body('confirmPassword')
+    .trim()
     .custom((value,{req})=>{
     if (value !== req.body.password){
         throw new Error ('password have to match')
