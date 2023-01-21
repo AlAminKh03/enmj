@@ -15,7 +15,6 @@ Router.get('/edit-product/:productId',isAuth, adminController.getEditProduct)
 Router.post('/add-product',isAuth,
 [
     check('title').isString().isLength({min:3}).trim(),
-    body('ImgUrl').isURL().trim(),
     body('price').isFloat(),
     body('description').isLength({min:5, max:400}).trim()
 

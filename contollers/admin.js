@@ -21,9 +21,10 @@ exports.getAddProduct= (req,res,next)=>{
 }
 exports.postAddProduct=(req,res,next)=>{
     const title= req.body.title;    
-    const ImgUrl=req.body.ImgUrl;    
+    const ImgUrl=req.file;    
     const price=req.body.price;    
-    const description=req.body.description;    
+    const description=req.body.description; 
+    console.log(ImgUrl);   
     const errors= validationResult(req)
 
 if(!errors.isEmpty()){
@@ -43,7 +44,6 @@ if(!errors.isEmpty()){
 }
 
     const product = new productModel({
-        _id:new mongoose.Types.ObjectId('63b59ae64ad5fc96c152a9f4'),
         title,
         ImgUrl,
         price, 
@@ -55,14 +55,19 @@ if(!errors.isEmpty()){
         res.redirect('/')
     })
     .catch(err=>{
-        return res.redirect('/404/500')
+        const error= new Error(err);
+        error.httpStatusCode =500;
+        return next(error)
 })
         
     }
 exports.getProducts= (req,res,next)=>{
     productModel.find({userId:req.user._id})
     .then(products=>{
-            res.render("admin/products",{
+        if(!products){
+            return res.redirect('/')
+        }
+        return res.render("admin/products",{
                 prods:products,
                 path:'/admin/products', 
                 title: "products",
@@ -70,7 +75,9 @@ exports.getProducts= (req,res,next)=>{
             }
     )})
     .catch(err=>{
-        console.log(err);
+        const error= new Error(err);
+        error.httpStatusCode =500;
+        return next(error)
     })
 
 }
@@ -134,7 +141,9 @@ exports.postEditProduct=(req,res,next)=>{
         })
     })
     .catch(err=>{
-        console.log(err);
+        const error= new Error(err);
+        error.httpStatusCode =500;
+        return next(error)
     })
 }
 
@@ -145,7 +154,9 @@ productModel.deleteOne({_id:prodId, userId:req.user._id})
     res.redirect('/admin/products')
 })
 .catch(err=>{
-    console.log(err);
+    const error= new Error(err);
+        error.httpStatusCode =500;
+        return next(error)
 })
 }
 

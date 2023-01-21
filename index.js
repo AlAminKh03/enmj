@@ -7,6 +7,7 @@ const session= require('express-session')
 const MongoDBStore = require('connect-mongodb-session')(session)
 const csrf = require('csurf')
 const flash = require("connect-flash")
+const multer= require("multer")
 
 
 // relative path 
@@ -29,6 +30,7 @@ const store = new MongoDBStore({
     collection:'sessions'
 })
 app.use(bodyParser.urlencoded({extended:false}))
+app.use(multer({dest:'images'}).single('img'))
 app.use(express.static(path.join(__dirname,'public')))
 // middleware 
 app.use(session({
@@ -73,6 +75,9 @@ app.use(shopRoutes)
 app.use(authRoutes)
 app.get('/404/500',notFound.errorFix)
 app.use(notFound.notFound)
+app.use((error,req,res,next)=>{
+    res.redirect('/404/500')
+})
 
 
 mongoose.set('strictQuery', true);
