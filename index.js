@@ -22,6 +22,11 @@ const express= require('express')
 const bodyParser=require("body-parser")
 const app = express()
 const csrfProtection = csrf()
+const fileStorage= multer.diskStorage({
+    destinition: (req,file,cb)=>{
+        cb(null,'images')
+    }
+})
 
 const MONGO_URI ='mongodb+srv://node-farm:vMSHxGGr2dHzDbXg@cluster0.n4boazi.mongodb.net/shop?retryWrites=true&w=majority'
 
@@ -30,7 +35,7 @@ const store = new MongoDBStore({
     collection:'sessions'
 })
 app.use(bodyParser.urlencoded({extended:false}))
-app.use(multer({dest:'images'}).single('img'))
+app.use(multer({storage}).single('img'))
 app.use(express.static(path.join(__dirname,'public')))
 // middleware 
 app.use(session({
