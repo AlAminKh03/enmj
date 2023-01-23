@@ -22,11 +22,21 @@ const express= require('express')
 const bodyParser=require("body-parser")
 const app = express()
 const csrfProtection = csrf()
-const fileStorage= multer.diskStorage({
-    destinition: (req,file,cb)=>{
-        cb(null,'images')
+const fileStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'images')
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname)
     }
-})
+});
+const fileFilter=(req,file,cb)=>{
+    if(file.mimetype=== 'image/png' || file.mimetype=== 'image/jpeg'  || file.mimetype=== 'image/jpg'){
+        cb(null,true)
+    }else{
+        cb(null,false)
+    }
+}
 
 const MONGO_URI ='mongodb+srv://node-farm:vMSHxGGr2dHzDbXg@cluster0.n4boazi.mongodb.net/shop?retryWrites=true&w=majority'
 
@@ -35,7 +45,7 @@ const store = new MongoDBStore({
     collection:'sessions'
 })
 app.use(bodyParser.urlencoded({extended:false}))
-app.use(multer({storage}).single('img'))
+app.use(multer({storage:fileStorage,fileFilter:fileFilter}).single('img'))
 app.use(express.static(path.join(__dirname,'public')))
 // middleware 
 app.use(session({
