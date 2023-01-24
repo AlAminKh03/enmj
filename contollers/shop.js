@@ -3,6 +3,8 @@ const cartModel=require("../models/cart")
 const UserModel = require("../models/user")
 const mongodb= require("mongodb")
 const OrderModel = require("../models/order")
+const fs= require('fs')
+const path= require('path')
 
 
 exports.shopIndex=(req,res,next)=>{
@@ -131,4 +133,21 @@ exports.shopOrder=(req,res,next)=>{
          })
     })
     
+}
+
+exports.getInvoice= (req,res,next)=>{
+const orderId = req.param.orderId
+console.log("orderId",orderId);
+const invoiceName = 'invoice-' + orderId + '.pdf'
+const pathName= path.join('data', 'invoices', invoiceName)
+fs.readFile(pathName, (err,data)=>{
+    if(err){
+        console.log(err);
+        return next(err)
+    }
+    console.log("data from fs",data);
+    res.setHeader('Content-Type', 'application/pdf')
+    // res.setHeader('Content-Type', 'application/pdf')
+    res.send(data)
+})
 }

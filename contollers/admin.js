@@ -21,11 +21,27 @@ exports.getAddProduct= (req,res,next)=>{
 }
 exports.postAddProduct=(req,res,next)=>{
     const title= req.body.title;    
-    const ImgUrl=req.file;    
+    const img=req.file;    
     const price=req.body.price;    
     const description=req.body.description; 
-    console.log(ImgUrl);   
+     
     const errors= validationResult(req)
+ 
+    console.log(img);
+    if(!img){
+        return res.status(422).render('admin/edit-product',{
+            path:"/admin/add-product",
+            title: "add-product", 
+            editMode:false,
+           hasError: true,
+           errMessage:" Invalid Img extension",
+           product:{
+            title:title,
+            price:price,
+            description:description
+           }
+            })
+    }
 
 if(!errors.isEmpty()){
     return res.status(422).render('admin/edit-product',{
@@ -36,13 +52,12 @@ if(!errors.isEmpty()){
        errMessage:errors.array()[0].msg,
        product:{
         title:title,
-        ImgUrl:ImgUrl,
         price:price,
         description:description
        }
         })
 }
-
+const ImgUrl= img.path
     const product = new productModel({
         title,
         ImgUrl,
@@ -107,7 +122,7 @@ exports.getEditProduct= (req,res,next)=>{
 exports.postEditProduct=(req,res,next)=>{
     const prodId=req.body.productId;
     const updatedTitle = req.body.title;
-    const updatedImgUrl = req.body.ImgUrl;
+    const updatedImg = req.file;
     const updatedPrice = req.body.price;
     const updatedDesc = req.body.description;
 
@@ -122,17 +137,19 @@ exports.postEditProduct=(req,res,next)=>{
            errMessage:errors.array()[0].msg,
            product:{
             title:updatedTitle,
-            ImgUrl:updatedImgUrl,
             price:updatedPrice,
             description:updatedDesc,
             _id:prodId
            }
             })
     }
+    
     productModel.findById(prodId)
     .then(product=>{
         product.title= updatedTitle
-        product.ImgUrl= updatedImgUrl
+        if(updatedImg){
+            product.ImgUrl= updatedImg.path
+        }
         product.price= updatedPrice
         product.description = updatedDesc
         return product.save()
