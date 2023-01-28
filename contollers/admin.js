@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const {validationResult}= require('express-validator')
 const objectid=mongodb.ObjectId
 const productModel =require("../models/product")
+const deleteFiles= require('../utils/deleteImg')
 
 exports.getAddProduct= (req,res,next)=>{
     res.render('admin/edit-product',{
@@ -27,7 +28,7 @@ exports.postAddProduct=(req,res,next)=>{
      
     const errors= validationResult(req)
  
-    console.log(img);
+    // console.log(img);
     if(!img){
         return res.status(422).render('admin/edit-product',{
             path:"/admin/add-product",
@@ -128,7 +129,7 @@ exports.postEditProduct=(req,res,next)=>{
 
     const errors= validationResult(req)
     if(!errors.isEmpty()){
-        console.log(errors.array());
+        // console.log(errors.array());
         return res.status(422).render('admin/edit-product',{
             path:"/admin/edit-product",
             title: "edit-product", 
@@ -148,6 +149,7 @@ exports.postEditProduct=(req,res,next)=>{
     .then(product=>{
         product.title= updatedTitle
         if(updatedImg){
+            deleteFiles.deleteFiles(product.ImgUrl)
             product.ImgUrl= updatedImg.path
         }
         product.price= updatedPrice
@@ -166,7 +168,14 @@ exports.postEditProduct=(req,res,next)=>{
 
 exports.postDeleteProduct=(req,res,next)=>{
 const prodId= req.body.productId
-productModel.deleteOne({_id:prodId, userId:req.user._id})
+productModel.findById(prodId)
+.then(product=>{
+    if(!product){
+        return next(new Error('Product is not found'))
+    }
+    deleteFiles.deleteFiles(product.ImgUrl)
+    return productModel.deleteOne({_id:prodId, userId:req.user._id})
+})
 .then(()=>{
     res.redirect('/admin/products')
 })

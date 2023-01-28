@@ -6,31 +6,33 @@
 <% if (prods.length > 0) { %>
     <main>
        
-        <h1>My Products</h1>
-        <p>List of all the products...</p>
+            <div class="grid">
         <% for (product of prods) { %>
-        <div class="grid">
-            <article class="card product-item">
-                <header class="card__header">
-                    <h1 class="product__title"><%=product.title%></h1>
-                </header>
-                <div class="card__image">
-                    <img src="/<%=product.ImgUrl %>" alt="<%=product.title %>">
-                </div>
-                <div class="card__content">
-                    <h2 class="product__price">$<%=product.price %></h2>
-                    <p class="product__description"><%=product.description %></p>
-                </div>
-                <div class="card__actions">
-                    <% if (isAuthenticated) { %>
-                        <%-include('../includes/add-tocart.ejs') %>
-                    <% } %>
-                </div>
-            </article>
-        </div>
-    </main>
+                <article class="card product-item ">
+                    <header class="card__header">
+                        <h1 class="product__title"><%=product.title%></h1>
+                    </header>
+                    <div class="card__image">
+                        <img src="/<%=product.ImgUrl %>" alt="<%=product.title %>">
+                    </div>
+                    <div class="card__content">
+                        <h2 class="product__price">$<%=product.price %></h2>
+                        <p class="product__description"><%=product.description %><p>
+                    </div>
+                    <div class="card__actions">
+                        <% if (isAuthenticated) { %>
+                            <%-include('../includes/add-tocart.ejs') %>
+                        <% } %>
+                    </div>
+                </article>
     <% } %>
+</div>
+    <div class="pagination">
+        <a href="?page=1">1</a>
+        <a href="?page=2">2</a>
+    </div>
     <% } else { %>
         <h1> No products available</h1>
         <% } %>
+    </main>
         <%- include('../includes/end.ejs') %>

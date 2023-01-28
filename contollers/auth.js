@@ -50,7 +50,7 @@ exports.postAuth = (req,res,next)=>{
     const email= req.body.email;
     const password = req.body.password
     const errors= validationResult(req)
-    console.log(errors);
+    // console.log(errors);
     if (!errors.isEmpty()){
       return res.status(422).render('auth/login',{
         path: '/login',
@@ -91,7 +91,7 @@ exports.postAuth = (req,res,next)=>{
             req.session.isLoggedIn= true
             req.session.user = user
             return req.session.save(err=>{
-            console.log(err);
+            // console.log(err);
             res.redirect('/')
         })
       })
@@ -146,7 +146,7 @@ exports.postSignup = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
     const errors = validationResult(req)
-    console.log(errors.array())
+    // console.log(errors.array())
     if(!errors.isEmpty()){
       return res.status(422).render('auth/signup', {
         path: '/signup',

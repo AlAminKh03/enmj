@@ -65,7 +65,7 @@ app.set('views', 'views')
 
 
 app.use((req,res,next)=>{
-    console.log("from index", req.session.user);
+    // console.log("from index", req.session.user);
     if(!req.session.user){
         return next()
     }
@@ -76,14 +76,14 @@ app.use((req,res,next)=>{
         next()
     })
     .catch(err=>{
-        console.log(err);
+        // console.log(err);
     })
 })
 
 app.use((req,res,next)=>{
     res.locals.isAuthenticated= req.session.isLoggedIn
     res.locals.csrfToken = req.csrfToken()
-    console.log(res.locals.csrfToken);
+    // console.log(res.locals.csrfToken);
     next()
 })
 app.use('/admin',adminRoutes)
