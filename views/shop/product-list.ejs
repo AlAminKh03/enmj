@@ -31,6 +31,7 @@
         </div>
     </main>
     <% } %>
+    <%-include('../includes/add-to-cart-pagination.ejs',{currentPage,previousPage,hasPreviousPage,currentPage,hasNextPage,nextPage,lastPage}) %>
     <% } else { %>
         <h1> No products available</h1>
         <% } %>

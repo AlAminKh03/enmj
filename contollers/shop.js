@@ -6,17 +6,18 @@ const OrderModel = require("../models/order")
 const fs= require('fs')
 const path= require('path')
 const PDFDocument = require('pdfkit')
-const PAGE_PER_LIMIT = 2;
+const PAGE_PER_LIMIT = 1;
 
 exports.shopIndex=(req,res,next)=>{
-    const page = req.query.page;
+    const page = +req.query.page || 1;
     let totalItems;
     productModel.countDocuments()
     .then(productNumbers=>{
-        totalPage=productNumbers;
+        console.log(typeof page, page);
         return productModel.find()
         .skip((page-1)* PAGE_PER_LIMIT)
         .limit(PAGE_PER_LIMIT)
+       
     })
     .then(products=>{
             res.render("shop/index",{
@@ -24,12 +25,12 @@ exports.shopIndex=(req,res,next)=>{
                 path:'/', 
                 title: "shop",
                 isAuthenticated: req.session.isLoggedIn,
-                totalProducts:totalItems,
-                hasNestPage: (PAGE_PER_LIMIT * page) < totalPage,
-                hasPreviousPage:page>1,
-                totalPages: totalItems/PAGE_PER_LIMIT,
-                nextPage: page +1,
-                previousPage: page - 1
+                currentPage:page,
+                hasNextPage: (PAGE_PER_LIMIT * page) < totalItems,
+                hasPreviousPage: page > 1,
+                nextPage: page + 1,
+                previousPage: page - 1,
+                lastPage: Math.ceil(totalItems/PAGE_PER_LIMIT)
             })
     })
     .catch(err=>{
@@ -39,15 +40,30 @@ exports.shopIndex=(req,res,next)=>{
     })
 }
 exports.shopProductList=(req,res,next)=>{
-    productModel.find()
+const page = +req.query.page || 1;
+    let totalItems;
+    productModel.countDocuments()
+    .then(productNumbers=>{
+        totalItems=productNumbers;
+        return productModel.find()
+        .skip((page-1)* PAGE_PER_LIMIT)
+        .limit(PAGE_PER_LIMIT)
+       
+    })
     .then(products=>{
-        res.render("shop/product-list",{
-            prods:products,
-            path:'/product-list', 
-            title: "product-list",
-            isAuthenticated: req.session.isLoggedIn
-        })
-})
+            res.render("shop/product-list",{
+                prods:products,
+                path:'/product-list', 
+                title: "product-list",
+                isAuthenticated: req.session.isLoggedIn,
+                currentPage:page,
+                hasNextPage: (PAGE_PER_LIMIT * page) < totalItems,
+                hasPreviousPage: page > 1,
+                nextPage: page + 1,
+                previousPage: page - 1,
+                lastPage: Math.ceil(totalItems/PAGE_PER_LIMIT)
+            })
+    })
 .catch(err=>{
     const error= new Error(err);
     error.httpStatusCode =500;

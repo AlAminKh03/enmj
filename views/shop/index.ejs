@@ -27,10 +27,7 @@
                 </article>
     <% } %>
 </div>
-    <div class="pagination">
-        <a href="?page=1">1</a>
-        <a href="?page=2">2</a>
-    </div>
+<%-include('../includes/add-to-cart-pagination.ejs',{currentPage,previousPage,hasPreviousPage,currentPage,hasNextPage,nextPage,lastPage}) %>
     <% } else { %>
         <h1> No products available</h1>
         <% } %>
