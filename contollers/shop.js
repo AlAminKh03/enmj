@@ -232,3 +232,25 @@ pdfdoc.end()
     return next(err)
 })
 }
+
+exports.getCheckOut=(req,res,next)=>{
+    req.user.populate('cart.items.productId')
+    .then(products=>{
+        const product= products.cart.items
+        let total=0
+        product.forEach(p=>{
+            total += p.quantity * p.productId.price
+        })
+        console.log(total);
+        console.log(product);
+        res.render('shop/checkout', {
+            path: '/checkOut',
+            title: 'checkOut',
+            products: product,
+            totalSum:total,
+          })
+    })
+    .catch(err=>{
+        throw new Error(err)
+    })
+}
