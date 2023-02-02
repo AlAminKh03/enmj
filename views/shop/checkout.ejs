@@ -10,5 +10,18 @@
             <% }) %>
         </ul>  
             <h5>Total : <%= totalSum %> </h5>
+       <div>
+        <button id="order-btn" class="btn">Order!</button>
+        <script src="https://js.stripe.com/v3/"></script>
+        <script>
+        let stripe = Stripe(process.env.STRIPE_API_KEY);
+        let orderBtn= document.getElementById('order-btn')
+        orderBtn.addEventListener('click', function(){
+            stripe.redirectToCheckout({
+                sessinId: '<%= sessionId %>'
+            })
+        })
+        </script>
+       </div>
     </main>
 <%- include('../includes/end.ejs') %>

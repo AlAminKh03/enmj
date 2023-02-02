@@ -18,6 +18,8 @@ Router.get('/product/:productId',shopController.getProduct)
 Router.get('/product-detils',shopController.shopProductDetails)
 Router.get('/order',isAuth,shopController.shopOrder)
 Router.get('/checkout',isAuth,shopController.getCheckOut)
+Router.get('/checkout/success',shopController.postOrder)
+Router.get('/checkout/cancel',shopController.getCheckOut)
 Router.get('/order/:orderId',isAuth,shopController.getInvoice)
-Router.post('/create-order',isAuth,shopController.postOrder)
+
 module.exports=Router;
